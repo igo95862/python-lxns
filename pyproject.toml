@@ -1,0 +1,15 @@
+# SPDX-License-Identifier: LGPL-2.1-or-later
+# SPDX-FileCopyrightText: 2023 igo95862
+[project]
+name = "lxns"
+version = "0.0.alpha1"
+description = "Python library to interact with Linux kernel namespaces."
+readme = "README.md"
+license = {file = "LICENSES/LGPL-2.1-or-later.txt"}
+authors = [
+    {name = "igo95862"}
+]
+
+[build-system]
+build-backend = 'mesonpy'
+requires = ['meson-python']
