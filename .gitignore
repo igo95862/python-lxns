@@ -12,3 +12,4 @@ strace*.txt
 wheels
 *.kate-swp
 dist/
+venv/
