@@ -12,7 +12,8 @@ python.extension_module(
 
 lxns_python_files = [
     '__init__.py',
-    'os.py'
+    'os.py',
+    'namespace.py',
 ]
 
 python.install_sources(
