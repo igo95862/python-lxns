@@ -8,7 +8,18 @@ from os import open as open_fd
 from typing import TYPE_CHECKING
 from warnings import warn
 
-from .os import CLONE_NEWUSER, ns_get_userns, setns
+from .os import (
+    CLONE_NEWCGROUP,
+    CLONE_NEWIPC,
+    CLONE_NEWNET,
+    CLONE_NEWNS,
+    CLONE_NEWPID,
+    CLONE_NEWTIME,
+    CLONE_NEWUSER,
+    CLONE_NEWUTS,
+    ns_get_userns,
+    setns,
+)
 
 if TYPE_CHECKING:
     from typing import Any, ClassVar, Literal, Self
@@ -66,6 +77,53 @@ class BaseNamespace:
         return cls.from_pid("self")
 
 
+class CgroupNamespace(BaseNamespace):
+    NAMESPACE_CONSTANT = CLONE_NEWCGROUP
+    NAMESPACE_PROC_NAME = "cgroup"
+
+
+class IpcNamespace(BaseNamespace):
+    NAMESPACE_CONSTANT = CLONE_NEWIPC
+    NAMESPACE_PROC_NAME = "ipc"
+
+
+class NetworkNamespace(BaseNamespace):
+    NAMESPACE_CONSTANT = CLONE_NEWNET
+    NAMESPACE_PROC_NAME = "net"
+
+
+class MountNamespace(BaseNamespace):
+    NAMESPACE_CONSTANT = CLONE_NEWNS
+    NAMESPACE_PROC_NAME = "mnt"
+
+
+class PidNamespace(BaseNamespace):
+    NAMESPACE_CONSTANT = CLONE_NEWPID
+    NAMESPACE_PROC_NAME = "pid"
+
+
+class TimeNamespace(BaseNamespace):
+    NAMESPACE_CONSTANT = CLONE_NEWTIME
+    NAMESPACE_PROC_NAME = "time"
+
+
 class UserNamespace(BaseNamespace):
     NAMESPACE_CONSTANT = CLONE_NEWUSER
     NAMESPACE_PROC_NAME = "user"
+
+
+class UtsNamespace(BaseNamespace):
+    NAMESPACE_CONSTANT = CLONE_NEWUTS
+    NAMESPACE_PROC_NAME = "uts"
+
+
+__all__ = (
+    "CgroupNamespace",
+    "IpcNamespace",
+    "NetworkNamespace",
+    "MountNamespace",
+    "PidNamespace",
+    "TimeNamespace",
+    "UserNamespace",
+    "UtsNamespace",
+)
