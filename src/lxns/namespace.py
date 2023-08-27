@@ -61,6 +61,10 @@ class BaseNamespace:
         new_instance._fd = ns_fd
         return new_instance
 
+    @classmethod
+    def from_self(cls) -> Self:
+        return cls.from_pid("self")
+
 
 class UserNamespace(BaseNamespace):
     NAMESPACE_CONSTANT = CLONE_NEWUSER
