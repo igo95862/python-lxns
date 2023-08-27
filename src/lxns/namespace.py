@@ -31,6 +31,7 @@ class BaseNamespace:
     _fd: int | None
 
     def __init__(self, *args: Any, **kwargs: Any):
+        self._fd = None
         raise NotImplementedError(
             "Please use one of the 'from' methods to initialize namespace."
         )
