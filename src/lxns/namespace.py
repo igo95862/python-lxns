@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: LGPL-2.1-or-later
 # SPDX-FileCopyrightText: 2023 igo95862
+"""Namespaces classes."""
 from __future__ import annotations
 
 from os import O_CLOEXEC, O_RDONLY
@@ -26,6 +27,11 @@ if TYPE_CHECKING:
 
 
 class BaseNamespace:
+    """Base namespace class for all namespaces.
+
+    Should not be used directly.
+    """
+
     NAMESPACE_CONSTANT: ClassVar[int] = -1
     NAMESPACE_PROC_NAME: ClassVar[str] = ""
     _fd: int | None
@@ -42,18 +48,32 @@ class BaseNamespace:
             self.close()
 
     def setns(self) -> None:
+        """Enter namespace.
+
+        :raises OSError: Errors returned by the syscall.
+        """
         if self._fd is None:
             raise ValueError("Trying switch to closed namespace.")
 
         setns(self._fd, self.NAMESPACE_CONSTANT)
 
     def get_userns(self) -> UserNamespace:
+        """Open user namespace that owns this namespace.
+
+        :return: User namespace.
+        :rtype: :py:class:`UserNamespace`
+        """
         if self._fd is None:
             raise ValueError("Namespace closed. Cannot get user namespace.")
 
         return UserNamespace(ns_get_userns(self._fd))
 
     def close(self) -> None:
+        """Close namespace file descriptor.
+
+        Can be called multiple times in which case only first call
+        will close the namespace and subsequent calls will be ignored.
+        """
         if self._fd is not None:
             close_fd(self._fd)
             self._fd = None
@@ -66,6 +86,7 @@ class BaseNamespace:
 
     @classmethod
     def from_pid(cls, pid: int | Literal["self"]) -> Self:
+        """Open namespace from a process id."""
         ns_fd = open_fd(
             f"/proc/{pid}/ns/{cls.NAMESPACE_PROC_NAME}", O_RDONLY | O_CLOEXEC
         )
@@ -75,45 +96,65 @@ class BaseNamespace:
 
     @classmethod
     def from_self(cls) -> Self:
+        """Open caller namespace."""
         return cls.from_pid("self")
 
 
 class CgroupNamespace(BaseNamespace):
+    """Cgroups namespace."""
+
     NAMESPACE_CONSTANT = CLONE_NEWCGROUP
     NAMESPACE_PROC_NAME = "cgroup"
 
 
 class IpcNamespace(BaseNamespace):
+    """IPC namespace."""
+
     NAMESPACE_CONSTANT = CLONE_NEWIPC
     NAMESPACE_PROC_NAME = "ipc"
 
 
 class NetworkNamespace(BaseNamespace):
+    """Network namespace."""
+
     NAMESPACE_CONSTANT = CLONE_NEWNET
     NAMESPACE_PROC_NAME = "net"
 
 
 class MountNamespace(BaseNamespace):
+    """Mount namespace."""
+
     NAMESPACE_CONSTANT = CLONE_NEWNS
     NAMESPACE_PROC_NAME = "mnt"
 
 
 class PidNamespace(BaseNamespace):
+    """PID namespace."""
+
     NAMESPACE_CONSTANT = CLONE_NEWPID
     NAMESPACE_PROC_NAME = "pid"
 
 
 class TimeNamespace(BaseNamespace):
+    """Time namespace."""
+
     NAMESPACE_CONSTANT = CLONE_NEWTIME
     NAMESPACE_PROC_NAME = "time"
 
 
 class UserNamespace(BaseNamespace):
+    """User namespace."""
+
     NAMESPACE_CONSTANT = CLONE_NEWUSER
     NAMESPACE_PROC_NAME = "user"
 
 
 class UtsNamespace(BaseNamespace):
+    """UTS namespace.
+
+    Provides isolation of system identifiers: hostname and NIS domain name.
+    """
+
     NAMESPACE_CONSTANT = CLONE_NEWUTS
     NAMESPACE_PROC_NAME = "uts"
 
