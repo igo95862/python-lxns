@@ -2,9 +2,7 @@
 # SPDX-FileCopyrightText: 2023 igo95862
 from __future__ import annotations
 
-STUB_ERROR = (
-    "Typing stub. Actual library failed to load. Check your installation."
-)
+STUB_ERROR = "Typing stub. Actual library failed to load. Check your installation."
 
 
 def unshare(flags: int, /) -> None:

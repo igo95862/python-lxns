@@ -23,7 +23,9 @@ from .os import (
 )
 
 if TYPE_CHECKING:
-    from typing import Any, ClassVar, Literal, Self
+    from typing import Any, ClassVar, Literal, TypeVar
+
+    Self = TypeVar("Self", bound="BaseNamespace")
 
 
 class BaseNamespace:
@@ -47,7 +49,7 @@ class BaseNamespace:
             warn(f"unclosed namespace {self}", ResourceWarning)
             self.close()
 
-    def setns(self) -> None:
+    def setns(self: Self) -> None:
         """Enter namespace.
 
         :raises OSError: Errors returned by the syscall.
@@ -57,7 +59,7 @@ class BaseNamespace:
 
         setns(self._fd, self.NAMESPACE_CONSTANT)
 
-    def get_userns(self) -> UserNamespace:
+    def get_userns(self: Self) -> UserNamespace:
         """Open user namespace that owns this namespace.
 
         :return: User namespace.
@@ -68,7 +70,7 @@ class BaseNamespace:
 
         return UserNamespace(ns_get_userns(self._fd))
 
-    def close(self) -> None:
+    def close(self: Self) -> None:
         """Close namespace file descriptor.
 
         Can be called multiple times in which case only first call
@@ -78,14 +80,14 @@ class BaseNamespace:
             close_fd(self._fd)
             self._fd = None
 
-    def __enter__(self) -> Self:
+    def __enter__(self: Self) -> Self:
         return self
 
-    def __exit__(self, *args: Any, **kwargs: Any) -> None:
+    def __exit__(self: Self, *args: Any, **kwargs: Any) -> None:
         self.close()
 
     @classmethod
-    def from_pid(cls, pid: int | Literal["self"]) -> Self:
+    def from_pid(cls: type[Self], pid: int | Literal["self"]) -> Self:
         """Open namespace from a process id."""
         ns_fd = open_fd(
             f"/proc/{pid}/ns/{cls.NAMESPACE_PROC_NAME}", O_RDONLY | O_CLOEXEC
@@ -95,7 +97,7 @@ class BaseNamespace:
         return new_instance
 
     @classmethod
-    def from_self(cls) -> Self:
+    def from_self(cls: type[Self]) -> Self:
         """Open caller namespace."""
         return cls.from_pid("self")
 
