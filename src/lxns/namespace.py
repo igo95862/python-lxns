@@ -7,6 +7,7 @@ from os import O_CLOEXEC, O_RDONLY
 from os import close as close_fd
 from os import fstat
 from os import open as open_fd
+from os import stat
 from typing import TYPE_CHECKING
 from warnings import warn
 
@@ -101,6 +102,10 @@ class BaseNamespace:
     def from_self(cls: type[Self]) -> Self:
         """Open caller namespace."""
         return cls.from_pid("self")
+
+    @classmethod
+    def get_current_ns_id(cls) -> int:
+        return stat(f"/proc/self/ns/{cls.NAMESPACE_PROC_NAME}").st_ino
 
     @property
     def ns_id(self) -> int:
