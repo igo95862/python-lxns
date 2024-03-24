@@ -23,6 +23,7 @@ from .os import (
     ns_get_userns,
     setns,
 )
+from .os import unshare as _unshare
 
 if TYPE_CHECKING:
     from typing import Any, ClassVar, Literal, TypeVar
@@ -182,6 +183,45 @@ class UtsNamespace(BaseNamespace):
     NAMESPACE_PROC_NAME = "uts"
 
 
+def unshare_namespaces(
+    *,
+    cgroup: bool = False,
+    ipc: bool = False,
+    network: bool = False,
+    mount: bool = False,
+    pid: bool = False,
+    time: bool = False,
+    user: bool = False,
+    uts: bool = False,
+) -> None:
+    flags = 0
+    if cgroup:
+        flags |= CLONE_NEWCGROUP
+
+    if ipc:
+        flags |= CLONE_NEWIPC
+
+    if network:
+        flags |= CLONE_NEWNET
+
+    if mount:
+        flags |= CLONE_NEWNS
+
+    if pid:
+        flags |= CLONE_NEWPID
+
+    if time:
+        flags |= CLONE_NEWTIME
+
+    if user:
+        flags |= CLONE_NEWUSER
+
+    if uts:
+        flags |= CLONE_NEWUTS
+
+    _unshare(flags)
+
+
 __all__ = (
     "CgroupNamespace",
     "IpcNamespace",
@@ -191,4 +231,5 @@ __all__ = (
     "TimeNamespace",
     "UserNamespace",
     "UtsNamespace",
+    "unshare_namespaces",
 )
