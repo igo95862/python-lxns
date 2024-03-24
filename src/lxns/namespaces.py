@@ -108,6 +108,10 @@ class BaseNamespace:
     def get_current_ns_id(cls) -> int:
         return stat(f"/proc/self/ns/{cls.NAMESPACE_PROC_NAME}").st_ino
 
+    @classmethod
+    def unshare(cls) -> None:
+        _unshare(cls.NAMESPACE_CONSTANT)
+
     @property
     def ns_id(self) -> int:
         if self._fd is None:
