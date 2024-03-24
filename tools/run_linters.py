@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: MPL-2.0
-# SPDX-FileCopyrightText: 2023 igo95862
+# SPDX-FileCopyrightText: 2024 igo95862
 from __future__ import annotations
 
 from pathlib import Path
@@ -10,6 +10,7 @@ PROJECT_ROOT_PATH = Path(__file__).parent.parent
 PYTHON_SOURCES: list[Path] = [
     PROJECT_ROOT_PATH / "src",
     PROJECT_ROOT_PATH / "tools",
+    PROJECT_ROOT_PATH / "test",
     PROJECT_ROOT_PATH / "docs/conf.py",
 ]
 
