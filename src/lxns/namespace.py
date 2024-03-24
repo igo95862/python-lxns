@@ -5,6 +5,7 @@ from __future__ import annotations
 
 from os import O_CLOEXEC, O_RDONLY
 from os import close as close_fd
+from os import fstat
 from os import open as open_fd
 from typing import TYPE_CHECKING
 from warnings import warn
@@ -100,6 +101,21 @@ class BaseNamespace:
     def from_self(cls: type[Self]) -> Self:
         """Open caller namespace."""
         return cls.from_pid("self")
+
+    @property
+    def ns_id(self) -> int:
+        if self._fd is None:
+            raise ValueError("Namespace already closed")
+
+        return fstat(self._fd).st_ino
+
+    def __repr__(self) -> str:
+        try:
+            ns_id = str(self.ns_id)
+        except ValueError:
+            ns_id = "closed"
+
+        return f"<{self.__class__.__name__} id={ns_id}>"
 
 
 class CgroupNamespace(BaseNamespace):
