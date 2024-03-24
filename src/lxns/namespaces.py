@@ -101,19 +101,25 @@ class BaseNamespace:
 
     @classmethod
     def from_self(cls: type[Self]) -> Self:
-        """Open caller namespace."""
+        """Open caller current namespace."""
         return cls.from_pid("self")
 
     @classmethod
     def get_current_ns_id(cls) -> int:
+        """Return the current namespace of this type unique identifier.
+
+        This is a class method that works without opening a namespace file.
+        """
         return stat(f"/proc/self/ns/{cls.NAMESPACE_PROC_NAME}").st_ino
 
     @classmethod
     def unshare(cls) -> None:
+        """Create and switch to the new namespace of this type."""
         _unshare(cls.NAMESPACE_CONSTANT)
 
     @property
     def ns_id(self) -> int:
+        """Return the namespace unique identifier."""
         if self._fd is None:
             raise ValueError("Namespace already closed")
 
@@ -198,6 +204,7 @@ def unshare_namespaces(
     user: bool = False,
     uts: bool = False,
 ) -> None:
+    """Unshare multiple namespaces indicated by the boolean arguments."""
     flags = 0
     if cgroup:
         flags |= CLONE_NEWCGROUP
