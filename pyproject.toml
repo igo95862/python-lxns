@@ -13,3 +13,6 @@ authors = [
 [build-system]
 build-backend = 'mesonpy'
 requires = ['meson-python']
+
+[tool.codespell]
+skip = "venv,build"

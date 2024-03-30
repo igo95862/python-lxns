@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-from subprocess import CalledProcessError, run
+from subprocess import PIPE, CalledProcessError, Popen, run
 from typing import Union
 
 PROJECT_ROOT_PATH = Path(__file__).parent.parent
@@ -68,6 +68,38 @@ def run_mypy() -> bool:
     )
 
 
+def run_codespell() -> bool:
+    return run_linter(["codespell"])
+
+
+def run_codespell_on_commits() -> bool:
+    print("Running: git log to codespell")
+    try:
+        git_log = Popen(
+            args=(
+                "git",
+                "log",
+                "--max-count=50",
+                "--no-merges",
+                r"--format='%H%n%n%s%n%n%b'",
+            ),
+            cwd=PROJECT_ROOT_PATH,
+            stdout=PIPE,
+        )
+
+        run(
+            ["codespell", "--context", "3", "-"],
+            cwd=PROJECT_ROOT_PATH,
+            check=True,
+            stdin=git_log.stdout,
+            timeout=5,
+        )
+    except CalledProcessError:
+        return True
+
+    return bool(git_log.wait(3))
+
+
 def main() -> None:
     has_failed = False
 
@@ -76,6 +108,8 @@ def main() -> None:
     has_failed |= run_black()
     has_failed |= run_isort()
     has_failed |= run_mypy()
+    has_failed |= run_codespell()
+    has_failed |= run_codespell_on_commits()
 
     if has_failed:
         raise SystemExit(1)
