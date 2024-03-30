@@ -12,6 +12,7 @@ PYTHON_SOURCES: list[Path] = [
     PROJECT_ROOT_PATH / "tools",
     PROJECT_ROOT_PATH / "test",
     PROJECT_ROOT_PATH / "docs/conf.py",
+    PROJECT_ROOT_PATH / "examples",
 ]
 
 

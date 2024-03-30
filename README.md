@@ -34,3 +34,5 @@ Current features implemented:
 ## License
 
 Python-lxns is licensed under Mozilla Public License Version 2.0.
+
+Examples in `examples/` folder are licensed under MIT license.

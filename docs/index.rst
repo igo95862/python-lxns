@@ -12,3 +12,4 @@ a different area of functionality:
 .. toctree::
 
     namespace
+    tips_and_tricks
