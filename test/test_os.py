@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from concurrent.futures import ProcessPoolExecutor
-from os import getuid, stat
+from os import fstat, getpid, getuid, stat
 from tempfile import TemporaryFile
 from unittest import TestCase
 
@@ -17,7 +17,7 @@ from lxns.os import (
     unshare,
 )
 
-NAMESPACES_FILE = "/proc/self/ns/{namespace}"
+NAMESPACES_FILE = "/proc/{pid}/ns/{namespace}"
 NAMESPACES_NAMES = (
     "cgroup",
     "ipc",
@@ -28,12 +28,13 @@ NAMESPACES_NAMES = (
     "user",
     "uts",
 )
-USERNS_FILE = NAMESPACES_FILE.format(namespace="user")
+SELF_USERNS_FILE = NAMESPACES_FILE.format(pid="self", namespace="user")
 
 
 def get_namespaces_ids() -> frozenset[int]:
     return frozenset(
-        stat(NAMESPACES_FILE.format(namespace=name)).st_ino for name in NAMESPACES_NAMES
+        stat(NAMESPACES_FILE.format(pid="self", namespace=name)).st_ino
+        for name in NAMESPACES_NAMES
     )
 
 
@@ -102,7 +103,7 @@ class TestLxnsOs(TestCase):
                 ns_get_owner_uid(temp_f.fileno())
 
     def test_ns_get_nstype(self) -> None:
-        with open(USERNS_FILE) as f:
+        with open(SELF_USERNS_FILE) as f:
             self.assertEqual(ns_get_nstype(f.fileno()), CLONE_NEWUSER)
 
     @staticmethod
@@ -111,10 +112,12 @@ class TestLxnsOs(TestCase):
 
     @staticmethod
     def _executor_ns_get_owner_uid() -> int:
-        with open(USERNS_FILE) as f:
+        with open(SELF_USERNS_FILE) as f:
             return ns_get_owner_uid(f.fileno())
 
-    def test_ns_get_owner_uid(self) -> None:
+    def test_ns_get_functions(self) -> None:
+        current_ns_id = stat(SELF_USERNS_FILE).st_ino
+
         with open("/proc/sys/kernel/overflowuid") as overflow_f:
             overflow_uid = int(overflow_f.read())
 
@@ -125,3 +128,37 @@ class TestLxnsOs(TestCase):
                 overflow_uid,
                 executor.submit(self._executor_ns_get_owner_uid).result(3),
             )
+
+            child_pid = executor.submit(getpid).result(3)
+
+            self.assertTrue(child_pid)
+            self.assertNotEqual(child_pid, getpid())
+
+            child_userns_file_path = NAMESPACES_FILE.format(
+                pid=str(child_pid), namespace="user"
+            )
+
+            self.assertNotEqual(
+                current_ns_id,
+                stat(child_userns_file_path).st_ino,
+            )
+
+            with open(child_userns_file_path) as child_userns_file, open(
+                ns_get_parent(child_userns_file.fileno())
+            ) as child_parent_ns_file, open(
+                ns_get_userns(child_userns_file.fileno())
+            ) as child_userns_owner_userns_file:
+                self.assertEqual(
+                    ns_get_owner_uid(child_userns_file.fileno()),
+                    getuid(),
+                )
+
+                self.assertEqual(
+                    fstat(child_parent_ns_file.fileno()).st_ino,
+                    current_ns_id,
+                )
+
+                self.assertEqual(
+                    fstat(child_userns_owner_userns_file.fileno()).st_ino,
+                    current_ns_id,
+                )
