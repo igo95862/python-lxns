@@ -2,36 +2,31 @@
 # SPDX-FileCopyrightText: 2024 igo95862
 from __future__ import annotations
 
-from multiprocessing import Pipe, Process
+from concurrent.futures import ProcessPoolExecutor
 from os import getuid
-from typing import TYPE_CHECKING
 from unittest import TestCase
 
 from lxns.os import CLONE_NEWUSER, unshare
 
-if TYPE_CHECKING:
-    from collections.abc import Callable
-
-
-def run_in_subprocess(func: Callable[[], None]) -> None:
-    subproc = Process(target=func)
-    subproc.start()
-    subproc.join(3)
-
 
 class TestLxnsOs(TestCase):
+
+    @staticmethod
+    def unshare_test() -> tuple[int, int]:
+        uid_before_unshare = getuid()
+        unshare(CLONE_NEWUSER)
+        uid_after_unshare = getuid()
+
+        return uid_before_unshare, uid_after_unshare
+
     def test_unshare_user_namespace(self) -> None:
-        uid_before = getuid()
+        uid_before_test = getuid()
 
-        read_pipe, write_pipe = Pipe()
+        with ProcessPoolExecutor() as executor:
+            uid_before, uid_after = executor.submit(self.unshare_test).result(3)
 
-        def unshare_test() -> None:
-            write_pipe.send(getuid())
-            unshare(CLONE_NEWUSER)
-            write_pipe.send(getuid())
+        # Unit test process should not unshare
+        self.assertEqual(uid_before_test, getuid())
 
-        run_in_subprocess(unshare_test)
-        write_pipe.close()
-
-        self.assertEqual(uid_before, read_pipe.recv())
-        self.assertNotEqual(uid_before, read_pipe.recv())
+        self.assertEqual(uid_before_test, uid_before)
+        self.assertNotEqual(uid_before_test, uid_after)
