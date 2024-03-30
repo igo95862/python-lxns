@@ -28,6 +28,7 @@ NAMESPACES_NAMES = (
     "user",
     "uts",
 )
+USERNS_FILE = NAMESPACES_FILE.format(namespace="user")
 
 
 def get_namespaces_ids() -> frozenset[int]:
@@ -99,3 +100,28 @@ class TestLxnsOs(TestCase):
                 OSError, "25"
             ):
                 ns_get_owner_uid(temp_f.fileno())
+
+    def test_ns_get_nstype(self) -> None:
+        with open(USERNS_FILE) as f:
+            self.assertEqual(ns_get_nstype(f.fileno()), CLONE_NEWUSER)
+
+    @staticmethod
+    def _unshare_executor() -> None:
+        unshare(CLONE_NEWUSER)
+
+    @staticmethod
+    def _executor_ns_get_owner_uid() -> int:
+        with open(USERNS_FILE) as f:
+            return ns_get_owner_uid(f.fileno())
+
+    def test_ns_get_owner_uid(self) -> None:
+        with open("/proc/sys/kernel/overflowuid") as overflow_f:
+            overflow_uid = int(overflow_f.read())
+
+        with ProcessPoolExecutor(
+            max_workers=1, initializer=self._unshare_executor
+        ) as executor:
+            self.assertEqual(
+                overflow_uid,
+                executor.submit(self._executor_ns_get_owner_uid).result(3),
+            )
