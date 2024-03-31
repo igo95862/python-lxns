@@ -1,0 +1,3 @@
+# SPDX-License-Identifier: MPL-2.0
+# SPDX-FileCopyrightText: 2024 igo95862
+option('use_static_libc', type : 'boolean', value : false)
