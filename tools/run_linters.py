@@ -64,7 +64,7 @@ def run_isort() -> bool:
 
 def run_mypy() -> bool:
     return run_linter(
-        ["mypy", "--pretty", "--strict", "--python-version", "3.9", *PYTHON_SOURCES]
+        ["mypy", "--pretty", "--strict", "--python-version", "3.8", *PYTHON_SOURCES]
     )
 
 
