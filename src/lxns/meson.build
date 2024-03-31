@@ -7,6 +7,11 @@ if get_option('use_static_libc')
     os_link_args += ['-Wl,-Bstatic', '-lc', '-Wl,-Bdynamic']
 endif
 
+limited_api = ''
+if get_option('use_limited_api')
+    limited_api = '3.7'
+endif
+
 python.extension_module(
     'os',
     'os.c',
@@ -14,6 +19,7 @@ python.extension_module(
     c_args : lint_args,
     install : true,
     link_args : os_link_args,
+    limited_api : limited_api,
 )
 
 lxns_python_files = [
