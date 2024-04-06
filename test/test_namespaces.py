@@ -43,3 +43,15 @@ class TestNamespaces(TestCase):
 
         self.assertEqual(uid_now, uid_before)
         self.assertNotEqual(uid_now, uid_after)
+
+    @staticmethod
+    def namespaces_limits_test() -> int:
+        UserNamespace.unshare()
+        UserNamespace.set_current_limit(0)
+        return UserNamespace.get_current_limit()
+
+    def test_namespace_limits(self) -> None:
+        self.assertLess(0, UserNamespace.get_current_limit())
+
+        with ProcessPoolExecutor() as executor:
+            self.assertEqual(executor.submit(self.namespaces_limits_test).result(3), 0)

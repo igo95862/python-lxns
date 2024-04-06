@@ -133,6 +133,28 @@ class BaseNamespace:
 
         return f"<{self.__class__.__name__} id={ns_id}>"
 
+    @classmethod
+    def get_current_limit(cls) -> int:
+        """Get the current limit for this type of namespace.
+
+        The limits are unique per user namespace and are propagated to the child
+        namespaces.
+        """
+        with open(f"/proc/sys/user/max_{cls.NAMESPACE_PROC_NAME}_namespaces") as f:
+            return int(f.read())
+
+    @classmethod
+    def set_current_limit(cls, new_limit: int) -> None:
+        """Set the current limit for this type of namespace.
+
+        The limits are unique per user namespace and are propagated to the child
+        namespaces.
+        """
+        with open(
+            f"/proc/sys/user/max_{cls.NAMESPACE_PROC_NAME}_namespaces", mode="w"
+        ) as f:
+            f.write(str(new_limit))
+
 
 class CgroupNamespace(BaseNamespace):
     """Cgroups namespace."""
