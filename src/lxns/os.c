@@ -3,9 +3,11 @@
 
 #define PY_SSIZE_T_CLEAN
 #include <Python.h>
+#include <fcntl.h>
 #include <linux/nsfs.h>
 #include <sched.h>
 #include <sys/ioctl.h>
+#include <sys/mount.h>
 
 #define CALL_PYTHON_FAIL_ACTION(py_function, action) \
         ({                                           \
@@ -115,6 +117,37 @@ static PyObject* LxnsOs_ns_get_owner_uid(PyObject* Py_UNUSED(self), PyObject* ar
         return Py_BuildValue("I", uid, NULL);
 };
 
+static PyObject* LxnsOs_open_tree(PyObject* Py_UNUSED(self), PyObject* args, PyObject* kwargs) {
+        int dirfd = AT_FDCWD;
+        const char* path = NULL;
+        unsigned int flags = 0;
+
+        CALL_PYTHON_BOOL_CHECK(PyArg_ParseTupleAndKeywords(args, kwargs, "|izI", (char*[]){"dirfd", "path", "flags", NULL}, &dirfd, &path, &flags, NULL));
+
+        int tree_fd = open_tree(dirfd, path, flags);
+        if (tree_fd == -1) {
+                return PyErr_SetFromErrno(PyExc_OSError);
+        }
+        return Py_BuildValue("i", tree_fd, NULL);
+}
+
+static PyObject* LxnsOs_move_mount(PyObject* Py_UNUSED(self), PyObject* args, PyObject* kwargs) {
+        int from_dirfd = AT_FDCWD;
+        const char* from_path = NULL;
+        int to_dirfd = AT_FDCWD;
+        const char* to_path = NULL;
+        unsigned int flags = 0;
+
+        CALL_PYTHON_BOOL_CHECK(PyArg_ParseTupleAndKeywords(args, kwargs, "|izizI", (char*[]){"from_dirfd", "from_path", "to_dirfd", "to_path", "flags", NULL},
+                                                           &from_dirfd, &from_path, &to_dirfd, &to_path, &flags, NULL));
+
+        int r = move_mount(from_dirfd, from_path, to_dirfd, to_path, flags);
+        if (r == -1) {
+                return PyErr_SetFromErrno(PyExc_OSError);
+        }
+        Py_RETURN_NONE;
+}
+
 static PyMethodDef lxns_os_methods[] = {
     {"unshare", (PyCFunction)LxnsOs_unshare, METH_VARARGS, NULL},
     {"setns", (PyCFunction)LxnsOs_setns, METH_VARARGS, NULL},
@@ -122,6 +155,8 @@ static PyMethodDef lxns_os_methods[] = {
     {"ns_get_parent", (PyCFunction)LxnsOs_ns_get_parent, METH_VARARGS, NULL},
     {"ns_get_nstype", (PyCFunction)LxnsOs_ns_get_nstype, METH_VARARGS, NULL},
     {"ns_get_owner_uid", (PyCFunction)LxnsOs_ns_get_owner_uid, METH_VARARGS, NULL},
+    {"open_tree", (PyCFunction)(void*)LxnsOs_open_tree, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"move_mount", (PyCFunction)(void*)LxnsOs_move_mount, METH_VARARGS | METH_KEYWORDS, NULL},
     {0},
 };
 
@@ -146,6 +181,19 @@ PyMODINIT_FUNC PyInit_os(void) {
         CALL_PYTHON_INT_CHECK(PyModule_AddIntConstant(m, "CLONE_NEWUSER", CLONE_NEWUSER));
         CALL_PYTHON_INT_CHECK(PyModule_AddIntConstant(m, "CLONE_NEWUTS", CLONE_NEWUTS));
         CALL_PYTHON_INT_CHECK(PyModule_AddIntConstant(m, "CLONE_SYSVSEM", CLONE_SYSVSEM));
+
+        CALL_PYTHON_INT_CHECK(PyModule_AddIntConstant(m, "AT_EMPTY_PATH", AT_EMPTY_PATH));
+        CALL_PYTHON_INT_CHECK(PyModule_AddIntConstant(m, "AT_NO_AUTOMOUNT", AT_NO_AUTOMOUNT));
+        CALL_PYTHON_INT_CHECK(PyModule_AddIntConstant(m, "AT_SYMLINK_NOFOLLOW", AT_SYMLINK_NOFOLLOW));
+        CALL_PYTHON_INT_CHECK(PyModule_AddIntConstant(m, "OPEN_TREE_CLOEXEC", OPEN_TREE_CLOEXEC));
+        CALL_PYTHON_INT_CHECK(PyModule_AddIntConstant(m, "OPEN_TREE_CLONE", OPEN_TREE_CLONE));
+        CALL_PYTHON_INT_CHECK(PyModule_AddIntConstant(m, "AT_RECURSIVE", AT_RECURSIVE));
+
+        CALL_PYTHON_INT_CHECK(PyModule_AddIntConstant(m, "MOVE_MOUNT_F_EMPTY_PATH", MOVE_MOUNT_F_EMPTY_PATH));
+        CALL_PYTHON_INT_CHECK(PyModule_AddIntConstant(m, "MOVE_MOUNT_T_EMPTY_PATH", MOVE_MOUNT_T_EMPTY_PATH));
+        CALL_PYTHON_INT_CHECK(PyModule_AddIntConstant(m, "MOVE_MOUNT_F_AUTOMOUNTS", MOVE_MOUNT_F_AUTOMOUNTS));
+        CALL_PYTHON_INT_CHECK(PyModule_AddIntConstant(m, "MOVE_MOUNT_F_SYMLINKS", MOVE_MOUNT_F_SYMLINKS));
+        CALL_PYTHON_INT_CHECK(PyModule_AddIntConstant(m, "MOVE_MOUNT_T_SYMLINKS", MOVE_MOUNT_T_SYMLINKS));
 
         Py_INCREF(m);
         return m;
