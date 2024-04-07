@@ -4,15 +4,21 @@ from __future__ import annotations
 
 from concurrent.futures import ProcessPoolExecutor
 from os import fstat, getpid, getuid, stat
-from tempfile import TemporaryFile
+from pathlib import Path
+from tempfile import TemporaryDirectory, TemporaryFile
 from unittest import TestCase
 
 from lxns.os import (
+    CLONE_NEWNS,
     CLONE_NEWUSER,
+    MOVE_MOUNT_F_EMPTY_PATH,
+    OPEN_TREE_CLONE,
+    move_mount,
     ns_get_nstype,
     ns_get_owner_uid,
     ns_get_parent,
     ns_get_userns,
+    open_tree,
     setns,
     unshare,
 )
@@ -162,3 +168,23 @@ class TestLxnsOs(TestCase):
                     fstat(child_userns_owner_userns_file.fileno()).st_ino,
                     current_ns_id,
                 )
+
+    @staticmethod
+    def _open_tree_test(foo_file: Path, bar_file: Path) -> str:
+        unshare(CLONE_NEWUSER | CLONE_NEWNS)
+        tree_fd = open_tree(path=str(foo_file), flags=OPEN_TREE_CLONE)
+        move_mount(tree_fd, "", to_path=str(bar_file), flags=MOVE_MOUNT_F_EMPTY_PATH)
+        return bar_file.read_text()
+
+    def test_open_tree(self) -> None:
+        with ProcessPoolExecutor() as executor, TemporaryDirectory() as tmpdir:
+            tmpdir_path = Path(tmpdir)
+            foo_file = tmpdir_path / "foo"
+            foo_file.write_text("foo")
+            bar_file = tmpdir_path / "bar"
+            bar_file.write_text("bar")
+
+            self.assertEqual(
+                executor.submit(self._open_tree_test, foo_file, bar_file).result(3),
+                "foo",
+            )
