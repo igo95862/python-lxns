@@ -88,7 +88,7 @@ class BaseNamespace:
 
         setns(self._fd, self.NAMESPACE_CONSTANT)
 
-    def get_userns(self: Self) -> UserNamespace:
+    def get_user_namespace(self: Self) -> UserNamespace:
         """Open user namespace that owns this namespace.
 
         :return: User namespace.
