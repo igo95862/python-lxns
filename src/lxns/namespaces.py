@@ -38,7 +38,7 @@ class BaseNamespace:
     """
 
     NAMESPACE_CONSTANT: ClassVar[int] = -1
-    NAMESPACE_PROC_NAME: ClassVar[str] = ""
+    NAMESPACE_PROC_NAME: ClassVar[str] = "\0"
     _fd: int | None
 
     def __init__(self, *args: Any, **kwargs: Any):
