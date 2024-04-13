@@ -173,7 +173,7 @@ class TestLxnsOs(TestCase):
     def _open_tree_test(foo_file: Path, bar_file: Path) -> str:
         unshare(CLONE_NEWUSER | CLONE_NEWNS)
         tree_fd = open_tree(path=str(foo_file), flags=OPEN_TREE_CLONE)
-        move_mount(tree_fd, "", to_path=str(bar_file), flags=MOVE_MOUNT_F_EMPTY_PATH)
+        move_mount(tree_fd, to_path=str(bar_file), flags=MOVE_MOUNT_F_EMPTY_PATH)
         return bar_file.read_text()
 
     def test_open_tree(self) -> None:

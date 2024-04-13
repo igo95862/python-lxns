@@ -133,9 +133,9 @@ static PyObject* LxnsOs_open_tree(PyObject* Py_UNUSED(self), PyObject* args, PyO
 
 static PyObject* LxnsOs_move_mount(PyObject* Py_UNUSED(self), PyObject* args, PyObject* kwargs) {
         int from_dirfd = AT_FDCWD;
-        const char* from_path = NULL;
+        const char* from_path = "";
         int to_dirfd = AT_FDCWD;
-        const char* to_path = NULL;
+        const char* to_path = "";
         unsigned int flags = 0;
 
         CALL_PYTHON_BOOL_CHECK(PyArg_ParseTupleAndKeywords(args, kwargs, "|izizI", (char*[]){"from_dirfd", "from_path", "to_dirfd", "to_path", "flags", NULL},

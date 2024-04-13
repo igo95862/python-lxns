@@ -19,6 +19,9 @@ Current features implemented:
     * Switching to a namespace.
     * Unsharing namespaces either from class method or function with boolean flags.
     * Automatic file descriptor resource control using `with`.
+    * Getting and setting the max number of namespaces.
+* Mount utilities using new file descriptor based API.
+    * Create bind mounts.
 
 ## [Documentation](https://python-lxns.readthedocs.io/en/latest/)
 

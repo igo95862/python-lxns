@@ -26,6 +26,7 @@ lxns_python_files = [
     '__init__.py',
     'os.py',
     'namespaces.py',
+    'mount.py',
 ]
 
 python.install_sources(

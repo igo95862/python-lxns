@@ -12,4 +12,5 @@ a different area of functionality:
 .. toctree::
 
     namespace
+    mount
     tips_and_tricks
