@@ -52,6 +52,17 @@ class BaseNamespace:
             warn(f"unclosed namespace {self}", ResourceWarning)
             self.close()
 
+    def fileno(self) -> int:
+        """Return namespace underlying file descriptor.
+
+        :raises ValueError: Namespace was already closed.
+        """
+        fd = self._fd
+        if fd is not None:
+            return fd
+        else:
+            raise ValueError("Namespace file descriptor is already closed.")
+
     def setns(self: Self) -> None:
         """Enter namespace.
 
