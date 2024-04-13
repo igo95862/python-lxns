@@ -41,8 +41,8 @@ of namespace they reference. For brevity only :py:class:`BaseNamespace`
 has the methods documented.
 
 .. autoclass:: lxns.namespaces.BaseNamespace
-    :members: __init__, setns, get_user_namespace, close, from_pid, from_self, get_current_ns_id,
-              unshare, ns_id
+    :members: __init__, fileno, setns, get_user_namespace, close, from_pid, from_self,
+              get_current_ns_id, unshare, ns_id, get_current_limit, set_current_limit
 
 .. autoclass:: lxns.namespaces.UserNamespace
 
