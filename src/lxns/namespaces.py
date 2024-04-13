@@ -39,16 +39,22 @@ class BaseNamespace:
 
     NAMESPACE_CONSTANT: ClassVar[int] = -1
     NAMESPACE_PROC_NAME: ClassVar[str] = "\0"
-    _fd: int | None
 
-    def __init__(self, *args: Any, **kwargs: Any):
-        self._fd = None
-        raise NotImplementedError(
-            "Please use one of the 'from' methods to initialize namespace."
-        )
+    def __init__(self, fd: int, closefd: bool = True):
+        """Wrap existing file descriptor in a Namespace object.
+
+        It is recommended to use the :py:meth:`BaseNamespace.from_pid` or
+        :py:meth:`BaseNamespace.from_pid` methods over manually opening the
+        namespace files.
+
+        :param int fd: File descriptor that references the namespace.
+        :param bool closefd: Close underlying file descriptor or not.
+        """
+        self._fd: int | None = fd
+        self._closefd = closefd
 
     def __del__(self) -> None:
-        if self._fd is not None:
+        if self._fd is not None and self._closefd:
             warn(f"unclosed namespace {self}", ResourceWarning)
             self.close()
 
@@ -91,7 +97,8 @@ class BaseNamespace:
         will close the namespace and subsequent calls will be ignored.
         """
         if self._fd is not None:
-            close_fd(self._fd)
+            if self._closefd:
+                close_fd(self._fd)
             self._fd = None
 
     def __enter__(self: Self) -> Self:
@@ -106,9 +113,7 @@ class BaseNamespace:
         ns_fd = open_fd(
             f"/proc/{pid}/ns/{cls.NAMESPACE_PROC_NAME}", O_RDONLY | O_CLOEXEC
         )
-        new_instance = cls.__new__(cls)
-        new_instance._fd = ns_fd
-        return new_instance
+        return cls(ns_fd)
 
     @classmethod
     def from_self(cls: type[Self]) -> Self:
