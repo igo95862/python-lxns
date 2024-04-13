@@ -280,6 +280,20 @@ def unshare_namespaces(
     _unshare(flags)
 
 
+ALL_NAMESPACE_CLASSES = (
+    UserNamespace,
+    CgroupNamespace,
+    IpcNamespace,
+    NetworkNamespace,
+    MountNamespace,
+    PidNamespace,
+    TimeNamespace,
+    UserNamespace,
+    UtsNamespace,
+)
+"""All Namespace classes arranged in order suited for joining."""
+
+
 __all__ = (
     "CgroupNamespace",
     "IpcNamespace",

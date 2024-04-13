@@ -76,4 +76,7 @@ has the methods documented.
 
     Implements same API as :py:class:`BaseNamespace`.
 
+.. autodata:: lxns.namespaces.ALL_NAMESPACE_CLASSES
+    :annotation:
+
 .. autofunction:: lxns.namespaces.unshare_namespaces
