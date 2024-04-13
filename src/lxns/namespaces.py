@@ -20,6 +20,7 @@ from .os import (
     CLONE_NEWTIME,
     CLONE_NEWUSER,
     CLONE_NEWUTS,
+    ns_get_nstype,
     ns_get_userns,
     setns,
 )
@@ -50,8 +51,16 @@ class BaseNamespace:
         :param int fd: File descriptor that references the namespace.
         :param bool closefd: Close underlying file descriptor or not.
         """
-        self._fd: int | None = fd
+        self._fd: int | None = None
         self._closefd = closefd
+        if ns_get_nstype(fd) != self.NAMESPACE_CONSTANT:
+            raise ValueError(
+                f"File descriptor {fd!r} does not reference "
+                f"the {self.__class__.__name__} namespace."
+            )
+
+        # Only reference the file descriptor after it passed the check
+        self._fd = fd
 
     def __del__(self) -> None:
         if self._fd is not None and self._closefd:
