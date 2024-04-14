@@ -2,13 +2,32 @@
 # SPDX-FileCopyrightText: 2023 igo95862
 [project]
 name = "lxns"
-version = "0.0.alpha2"
+version = "0.0.alpha3"
 description = "Python library to interact with Linux kernel namespaces."
 readme = "README.md"
-license = {file = "LICENSES/MPL-2.0.txt"}
+license = {text = "MPL-2.0"}
 authors = [
     {name = "igo95862"}
 ]
+requires-python = ">= 3.7"
+keywords = ["linux", "namespace", "namespaces", "mount", "sandbox", "containers"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: Mozilla Public License 2.0 (MPL 2.0)",
+    "Operating System :: POSIX :: Linux",
+    "Programming Language :: Python :: 3",
+    "Topic :: Security",
+    "Topic :: Software Development :: Libraries",
+    "Topic :: System :: Operating System Kernels :: Linux",
+]
+
+[project.urls]
+Homepage = "https://github.com/igo95862/python-lxns"
+Documentation = "https://python-lxns.readthedocs.io/en/latest/"
+Repository = "https://github.com/igo95862/python-lxns.git"
+Issues = "https://github.com/igo95862/python-lxns/issues"
+Changelog = "https://github.com/igo95862/python-lxns/blob/master/CHANGELOG.md"
 
 [build-system]
 build-backend = 'mesonpy'
