@@ -25,7 +25,17 @@ Current features implemented:
 
 ## [Documentation](https://python-lxns.readthedocs.io/en/latest/)
 
+Also see [`examples/`](examples/) folder for code examples.
+
 ## Requirements
+
+* Python version 3.7 or higher
+
+### [PyPI wheels](https://pypi.org/project/lxns/)
+
+PyPI wheels are completely statically linked and do not depend on any library.
+
+Available architectures: `x86_64`, `i686`, `aarch64`, `armv7l`
 
 ### Compiling source package
 
