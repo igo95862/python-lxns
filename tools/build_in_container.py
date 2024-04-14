@@ -41,7 +41,7 @@ CFLAGS: tuple[str, ...] = (
     "-pipe",
 )
 
-ARCH = "x86_64"
+ARCH: list[str] = []
 
 PROJECT_ROOT_PATH = Path(__file__).parent.parent
 BUILD_DIR = Path("/root/lxns")
@@ -61,7 +61,7 @@ def run_command(*args: str) -> None:
 
 
 def pull_latest_image() -> None:
-    run_command("podman", "pull", "--arch", ARCH, "docker.io/alpine:latest")
+    run_command("podman", "pull", *ARCH, "docker.io/alpine:latest")
 
 
 def start_container() -> None:
@@ -69,8 +69,7 @@ def start_container() -> None:
         "podman",
         "run",
         "--detach",
-        "--arch",
-        ARCH,
+        *ARCH,
         "--rm",
         "--name",
         "lxns-build",
@@ -157,8 +156,8 @@ STAGES = (
 
 def main(initial_stage: str, arch: str | None) -> None:
     if arch is not None:
-        global ARCH
-        ARCH = arch
+        ARCH.append("--arch")
+        ARCH.append(arch)
 
     skipping_stages = True
     for stage_name, stage_function in STAGES:
