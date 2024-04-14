@@ -2,3 +2,6 @@
 # SPDX-FileCopyrightText: 2024 igo95862
 option('use_static_libc', type : 'boolean', value : false)
 option('use_limited_api', type : 'boolean', value : false, description : 'Use Python C modules limited API')
+# Use functions or syscalls for mount API. Glibc 2.36 implements the new mount API functions.
+option('mount_api_use_open_tree_function', type : 'feature', value : 'auto', description : 'Use open_tree function instead of syscall')
+option('mount_api_use_move_mount_function', type : 'feature', value : 'auto', description : 'Use move_mount function instead of syscall')

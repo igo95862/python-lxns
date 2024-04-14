@@ -4,10 +4,30 @@
 #define PY_SSIZE_T_CLEAN
 #include <Python.h>
 #include <fcntl.h>
+#include <linux/mount.h>
 #include <linux/nsfs.h>
 #include <sched.h>
 #include <sys/ioctl.h>
+
+#ifdef PYTHON_LXNS_FOUND_OPEN_TREE
 #include <sys/mount.h>
+#else
+#include <sys/syscall.h>
+
+static inline int open_tree(int dirfd, const char* pathname, unsigned int flags) {
+        return syscall(SYS_open_tree, dirfd, pathname, flags, NULL);
+}
+#endif
+
+#ifdef PYTHON_LXNS_FOUND_MOVE_MOUNT
+#include <sys/mount.h>
+#else
+#include <sys/syscall.h>
+
+static inline int move_mount(int from_dirfd, const char* from_pathname, int to_dirfd, const char* to_pathname, unsigned int flags) {
+        return syscall(SYS_move_mount, from_dirfd, from_pathname, to_dirfd, to_pathname, flags, NULL);
+}
+#endif
 
 #define CALL_PYTHON_FAIL_ACTION(py_function, action) \
         ({                                           \
