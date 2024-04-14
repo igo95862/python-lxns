@@ -1,0 +1,32 @@
+# SPDX-License-Identifier: MPL-2.0
+# SPDX-FileCopyrightText: 2024 igo95862
+---
+name: Test PyPI package
+on:
+  workflow_dispatch:
+    inputs:
+      pypi_version:
+        description: "Version specifier to install from PyPI"
+
+jobs:
+  run:
+    name: Test PyPI package
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Install dependencies
+        run: |
+          sudo apt install python3 python3-pip
+      - name: Create venv and install package
+        run: |
+          python3 -m venv --system-site-packages venv
+          venv/bin/pip3 install "lxns ${LXNS_VERSION}"
+        env:
+          LXNS_VERSION: ${{ inputs.pypi_version }}
+      - name: List package
+        run: |
+          venv/bin/pip3 list | grep lxns
+      - name: Run unit tests
+        run: |
+          venv/bin/python3 -m unittest --verbose
