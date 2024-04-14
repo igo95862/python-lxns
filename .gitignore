@@ -1,15 +1,9 @@
 # SPDX-License-Identifier: MPL-2.0
 # SPDX-FileCopyrightText: 2023 igo95862
 .mypy_cache
-.vscode
 *.pyc
 __pycache__
-build
-dev*
-strace*.txt
-*.so
-.cache
-wheels
-*.kate-swp
-dist/
+build/
 venv/
+# Clangd cache
+.cache
