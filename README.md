@@ -4,7 +4,7 @@ SPDX-FileCopyrightText: 2023 igo95862
 -->
 
 [![Documentation Status](https://readthedocs.org/projects/python-lxns/badge/?version=latest)](https://python-lxns.readthedocs.io/en/latest/?badge=latest)
-![PyPI - Version](https://img.shields.io/pypi/v/lxns)
+[![PyPI - Version](https://img.shields.io/pypi/v/lxns)](https://pypi.org/project/lxns/)
 
 # Python-lxns
 
