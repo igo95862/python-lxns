@@ -3,7 +3,7 @@
 project(
     'python-lxns',
     'c',
-    version : '0.0.alpha2',
+    version : '0.1.0',
 )
 
 python_mod = import('python')

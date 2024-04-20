@@ -2,7 +2,7 @@
 # SPDX-FileCopyrightText: 2023 igo95862
 [project]
 name = "lxns"
-version = "0.0.alpha3"
+version = "0.1.0"
 description = "Python library to interact with Linux kernel namespaces."
 readme = "README.md"
 license = {text = "MPL-2.0"}
