@@ -10,7 +10,7 @@ from auditwheel.main import main as auditwheel_main  # type: ignore
 
 def main(arch: str, wrapped_args: list[str]) -> None:
     with patch("sys.argv", [""] + wrapped_args), patch(
-        "platform.machine", return_value=arch
+        "auditwheel.policy.get_arch_name", return_value=arch
     ):
         auditwheel_main()
 
