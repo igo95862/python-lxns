@@ -5,7 +5,7 @@ from __future__ import annotations
 from os.path import abspath
 from sys import path
 
-project = "python-sdbus"
+project = "python-lxns"
 author = "igo95862"
 source_suffix = ".rst"
 extensions = ["sphinx.ext.autodoc"]
