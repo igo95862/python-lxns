@@ -10,6 +10,10 @@ SPDX-FileCopyrightText: 2023 igo95862
 
 ## Python library to control Linux kernel namespaces
 
+<a href="https://repology.org/project/python:lxns/versions">
+    <img src="https://repology.org/badge/vertical-allrepos/python:lxns.svg" alt="Packaging status" align="right">
+</a>
+
 Implemented using C extension module.
 
 Current features implemented:
