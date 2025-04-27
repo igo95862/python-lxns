@@ -41,6 +41,10 @@ jobs:
       - name: Build wheels with container
         run: |
           python3 tools/build_in_container.py
+      - name: Disable namespaces restrictions
+        run: |
+          sudo sysctl -w kernel.apparmor_restrict_unprivileged_unconfined=0
+          sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
       - name: Install in venv and run tests
         run: |
           python3 -m venv --system-site-packages venv
