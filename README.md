@@ -34,7 +34,7 @@ Also see [`examples/`](examples/) folder for code examples.
 
 ## Requirements
 
-* Python version 3.7 or higher
+* Python version 3.9 or higher
 
 ### [PyPI wheels](https://pypi.org/project/lxns/)
 

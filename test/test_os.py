@@ -77,34 +77,40 @@ class TestLxnsOs(TestCase):
         self.assertNotEqual(uid_before_test, uid_after)
 
     def test_errors(self) -> None:
-        with self.subTest("Unshare with invalid value"), self.assertRaisesRegex(
-            OSError, "22"
+        with (
+            self.subTest("Unshare with invalid value"),
+            self.assertRaisesRegex(OSError, "22"),
         ):
             unshare(-1)
 
         with TemporaryFile() as temp_f:
-            with self.subTest("setns on invalid fd"), self.assertRaisesRegex(
-                OSError, "22"
+            with (
+                self.subTest("setns on invalid fd"),
+                self.assertRaisesRegex(OSError, "22"),
             ):
                 setns(temp_f.fileno(), 0)
 
-            with self.subTest("ns_get_userns on invalid fd"), self.assertRaisesRegex(
-                OSError, "25"
+            with (
+                self.subTest("ns_get_userns on invalid fd"),
+                self.assertRaisesRegex(OSError, "25"),
             ):
                 ns_get_userns(temp_f.fileno())
 
-            with self.subTest("ns_get_parent on invalid fd"), self.assertRaisesRegex(
-                OSError, "25"
+            with (
+                self.subTest("ns_get_parent on invalid fd"),
+                self.assertRaisesRegex(OSError, "25"),
             ):
                 ns_get_parent(temp_f.fileno())
 
-            with self.subTest("ns_get_nstype on invalid fd"), self.assertRaisesRegex(
-                OSError, "25"
+            with (
+                self.subTest("ns_get_nstype on invalid fd"),
+                self.assertRaisesRegex(OSError, "25"),
             ):
                 ns_get_nstype(temp_f.fileno())
 
-            with self.subTest("ns_get_owner_uid on invalid fd"), self.assertRaisesRegex(
-                OSError, "25"
+            with (
+                self.subTest("ns_get_owner_uid on invalid fd"),
+                self.assertRaisesRegex(OSError, "25"),
             ):
                 ns_get_owner_uid(temp_f.fileno())
 
@@ -149,11 +155,13 @@ class TestLxnsOs(TestCase):
                 stat(child_userns_file_path).st_ino,
             )
 
-            with open(child_userns_file_path) as child_userns_file, open(
-                ns_get_parent(child_userns_file.fileno())
-            ) as child_parent_ns_file, open(
-                ns_get_userns(child_userns_file.fileno())
-            ) as child_userns_owner_userns_file:
+            with (
+                open(child_userns_file_path) as child_userns_file,
+                open(ns_get_parent(child_userns_file.fileno())) as child_parent_ns_file,
+                open(
+                    ns_get_userns(child_userns_file.fileno())
+                ) as child_userns_owner_userns_file,
+            ):
                 self.assertEqual(
                     ns_get_owner_uid(child_userns_file.fileno()),
                     getuid(),

@@ -27,9 +27,10 @@ def create_tree_clone(what: str) -> ClonedTree:
 
 
 def main(pid: int, what: str, where: str) -> None:
-    with MountNamespace.from_pid(
-        pid
-    ) as target_mount_ns, target_mount_ns.get_user_namespace() as target_user_ns:
+    with (
+        MountNamespace.from_pid(pid) as target_mount_ns,
+        target_mount_ns.get_user_namespace() as target_user_ns,
+    ):
         # Join target user namespace
         target_user_ns.setns()  # This should give us CAP_SYS_ADMIN
         # Don't join the mount namespace until we clone the tree'

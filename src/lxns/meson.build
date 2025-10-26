@@ -10,7 +10,7 @@ endif
 
 limited_api = ''
 if get_option('use_limited_api')
-    limited_api = '3.7'
+    limited_api = '3.9'
 endif
 
 mount_api_found_open_tree = false
