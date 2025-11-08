@@ -19,7 +19,7 @@ jobs:
         run: |
           pacman --noconfirm -Syu \
             reuse python-pyflakes python-black \
-            python-isort mypy codespell git
+            python-isort mypy codespell git meson
       - name: Checkout
         uses: actions/checkout@v4
       - name: Add safe git directory
@@ -27,7 +27,7 @@ jobs:
           git config --global --add safe.directory "$GITHUB_WORKSPACE"
       - name: Run linters
         run: |
-          python3 tools/run_linters.py
+          python3 -m tools.run_linters
 
   build_and_test:
     name: Build and test

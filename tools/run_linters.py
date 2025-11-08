@@ -4,20 +4,14 @@ from __future__ import annotations
 
 from pathlib import Path
 from subprocess import PIPE, CalledProcessError, Popen, run
-from typing import Union
+from sys import stderr
 
-PROJECT_ROOT_PATH = Path(__file__).parent.parent
-PYTHON_SOURCES: list[Path] = [
-    PROJECT_ROOT_PATH / "src",
-    PROJECT_ROOT_PATH / "tools",
-    PROJECT_ROOT_PATH / "test",
-    PROJECT_ROOT_PATH / "docs/conf.py",
-    PROJECT_ROOT_PATH / "examples",
-]
+from .base import BUILD_DIR, PROJECT_ROOT_PATH, PYTHON_SOURCES
+from .run_format import format_meson, format_with_black, format_with_isort
 
 
-def run_linter(args: list[Union[str, Path]]) -> bool:
-    print("Running:", args[0])
+def run_linter(args: list[str | Path]) -> bool:
+    print("Running:", args[0], file=stderr)
     try:
         run(
             args=args,
@@ -30,50 +24,95 @@ def run_linter(args: list[Union[str, Path]]) -> bool:
     return False
 
 
-def run_reuse() -> bool:
-    return run_linter(["reuse", "lint"])
-
-
 def run_pyflakes() -> bool:
     return run_linter(["pyflakes", *PYTHON_SOURCES])
 
 
+def run_mypy() -> bool:
+    cache_dir = BUILD_DIR / "mypy_cache"
+    mypy_args: list[str | Path] = [
+        "mypy",
+        "--pretty",
+        "--strict",
+        "--python-version",
+        "3.9",
+        "--cache-dir",
+        cache_dir,
+        *PYTHON_SOURCES,
+    ]
+
+    return run_linter(mypy_args)
+
+
+def run_reuse() -> bool:
+    return run_linter(["reuse", "lint"])
+
+
 def run_black() -> bool:
-    return run_linter(
-        [
-            "black",
-            "--check",
-            "--diff",
-            *PYTHON_SOURCES,
-        ]
-    )
+    print("Running: black", file=stderr)
+    try:
+        format_with_black(check=True)
+    except CalledProcessError:
+        return True
+
+    return False
 
 
 def run_isort() -> bool:
-    return run_linter(
-        [
-            "isort",
-            "--check",
-            "--diff",
-            "--profile",
-            "black",
-            *PYTHON_SOURCES,
-        ]
-    )
+    print("Running: isort", file=stderr)
+    try:
+        format_with_isort(check=True)
+    except CalledProcessError:
+        return True
+
+    return False
 
 
-def run_mypy() -> bool:
-    return run_linter(
-        ["mypy", "--pretty", "--strict", "--python-version", "3.9", *PYTHON_SOURCES]
-    )
+def run_meson_format() -> bool:
+    print("Running: meson format", file=stderr)
+    try:
+        format_meson(check=True)
+    except CalledProcessError:
+        print("Meson format failed!", file=stderr)
+        return True
+
+    return False
+
+
+IGNORE_CODESPELL_WORDS = ("assertIn",)
 
 
 def run_codespell() -> bool:
-    return run_linter(["codespell"])
+    print("Running: codespell", file=stderr)
+    try:
+        list_of_files = run(
+            args=("git", "ls-files", "-z"),
+            cwd=PROJECT_ROOT_PATH,
+            stdout=PIPE,
+            text=True,
+            check=True,
+        ).stdout.split("\0")
+        run(
+            args=[
+                "codespell",
+                "--check-filenames",
+                "--enable-colors",
+                "--context",
+                "3",
+                "--ignore-words-list",
+                ",".join(IGNORE_CODESPELL_WORDS),
+                *list_of_files,
+            ],
+            check=True,
+        )
+    except CalledProcessError:
+        return True
+
+    return False
 
 
 def run_codespell_on_commits() -> bool:
-    print("Running: git log to codespell")
+    print("Running: git log to codespell", file=stderr)
     try:
         git_log = Popen(
             args=(
@@ -81,15 +120,22 @@ def run_codespell_on_commits() -> bool:
                 "log",
                 "--max-count=50",
                 "--no-merges",
-                "--since=2025-01-01",
-                r"--format=%s%n%n%b",
+                r"--format='%H%n%n%s%n%n%b'",
             ),
             cwd=PROJECT_ROOT_PATH,
             stdout=PIPE,
         )
 
         run(
-            ["codespell", "--context", "3", "-"],
+            args=(
+                "codespell",
+                "--enable-colors",
+                "--context",
+                "3",
+                "--ignore-words-list",
+                ",".join(IGNORE_CODESPELL_WORDS),
+                "-",
+            ),
             cwd=PROJECT_ROOT_PATH,
             check=True,
             stdin=git_log.stdout,
@@ -102,13 +148,16 @@ def run_codespell_on_commits() -> bool:
 
 
 def main() -> None:
+    BUILD_DIR.mkdir(exist_ok=True)
+
     has_failed = False
 
-    has_failed |= run_reuse()
     has_failed |= run_pyflakes()
+    has_failed |= run_mypy()
+    has_failed |= run_reuse()
     has_failed |= run_black()
     has_failed |= run_isort()
-    has_failed |= run_mypy()
+    has_failed |= run_meson_format()
     has_failed |= run_codespell()
     has_failed |= run_codespell_on_commits()
 
