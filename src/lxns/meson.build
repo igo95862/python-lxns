@@ -17,7 +17,7 @@ mount_api_found_open_tree = false
 if get_option('mount_api_use_open_tree_function').auto()
     mount_api_found_open_tree = c_compiler.has_function(
         'open_tree',
-        prefix : '#include <sys/mount.h>',
+        prefix: '#include <sys/mount.h>',
     )
 elif get_option('mount_api_use_open_tree_function').enabled()
     mount_api_found_open_tree = true
@@ -27,7 +27,7 @@ mount_api_found_move_mount = false
 if get_option('mount_api_use_move_mount_function').auto()
     mount_api_found_move_mount = c_compiler.has_function(
         'move_mount',
-        prefix : '#include <sys/mount.h>',
+        prefix: '#include <sys/mount.h>',
     )
 elif get_option('mount_api_use_move_mount_function').enabled()
     mount_api_found_move_mount = true
@@ -44,11 +44,11 @@ endif
 python.extension_module(
     'os',
     'os.c',
-    subdir : 'lxns',
-    c_args : os_c_args,
-    install : true,
-    link_args : os_link_args,
-    limited_api : limited_api,
+    subdir: 'lxns',
+    c_args: os_c_args,
+    install: true,
+    link_args: os_link_args,
+    limited_api: limited_api,
 )
 
 lxns_python_files = [
@@ -59,7 +59,4 @@ lxns_python_files = [
     'py.typed',
 ]
 
-python.install_sources(
-    lxns_python_files,
-    subdir : 'lxns',
-)
+python.install_sources(lxns_python_files, subdir: 'lxns')
